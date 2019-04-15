@@ -34,7 +34,9 @@ public class FiltreAntiSpam {
 	
 	public static void main (String args[]) {
 		if(args.length < 2){
-			System.out.println("Il manque des parametres. 1: le dictionnaire. 2: le fichier/dossier de mail.");
+			System.out.println("Il manque des parametres:");
+			System.out.println("  1- le dictionnaire.");
+			System.out.println("  2- le fichier/dossier de mail.");
 			return;
 		}
 

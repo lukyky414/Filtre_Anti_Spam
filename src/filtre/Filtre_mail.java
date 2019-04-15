@@ -58,12 +58,14 @@ public class Filtre_mail {
 		ArrayList<String> dico = getDico();
 		for (String mot : splitted) {
 			mot = filter(mot);
-			if(mot != null)
-				for (int i = 0 ; i < dico.size() ; i++) {
+			if(mot != null) {
+				for (int i = 0; i < dico.size(); i++) {
 					if (mot.equals(dico.get(i))) {
 						representation[i] = true;
+						break;
 					}
 				}
+			}
 		}
 	}
 
@@ -73,7 +75,7 @@ public class Filtre_mail {
 	 * @return null si word.size() < 3, word sans ',' '.' ou autre ponctuation sinon.
 	 */
 	private String filter(String word){
-		if(word.length() < 3)
+		if(word.length() <= 3)
 			return null;
 		//TODO plus de filtrations.
 		return word;
