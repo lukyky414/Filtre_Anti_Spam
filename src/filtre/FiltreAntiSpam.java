@@ -13,7 +13,7 @@ public class FiltreAntiSpam {
 		
 	}
 
-	private static ArrayList<String> getAllFiles(String directory){
+	public static ArrayList<String> getAllFiles(String directory){
 		File folder = new File(directory);
 		ArrayList<String> res = new ArrayList<String>();
 
@@ -39,13 +39,14 @@ public class FiltreAntiSpam {
 		System.out.println("  -bt : Le chemin de la Base de Test.");
 		System.out.println("  -ns : Nombre de Spam a charger de la base d'apprentissage.");
 		System.out.println("  -nh : Nombre de Ham a charger de la base d'apprentissage.");
+		System.out.println("  -t : Chemin vers un dossier ou un fichier test");
 		System.exit(0);
 	}
 	
 	public static void main (String args[]) {
 
-		String dico_path = "", base_app_path = "", base_test_path = "";
-		int nbSpam = 0, nbHam = 0;
+		String dico_path = "../dictionnaire1000en.txt", base_app_path = "../baseapp/", base_test_path = "../basetest/", mail_test = "";
+		int nbSpam = 200, nbHam = 200;
 
 		{
 			int i = 0;
@@ -86,6 +87,14 @@ public class FiltreAntiSpam {
 						nbHam = Integer.parseInt(args[i]);
 						break;
 
+					case "-t":
+						i++;
+						if (i >= args.length)
+							printHelp();
+						mail_test = args[i];
+						break;
+
+
 					case "-h":
 					case "--help":
 					default:
@@ -93,35 +102,33 @@ public class FiltreAntiSpam {
 				}
 				i++;
 			}
-
-			if (dico_path == "")
-				printHelp();
 		}
 
-		Filtre_mail classifieur = new Filtre_mail();
-		classifieur.charger_dictionnaire(dico_path);
-
-		/*
-		for (String s : classifieur.getDico()) {
-			System.out.println(s);
-		}
-		System.out.println("Mot dans le dictionnaire : " + classifieur.getDico().size());
-		//*/
-
-		ArrayList<String> mails = getAllFiles(base_test_path);
-
-		for (String mail : mails){
-
-			System.out.println(mail);
-
-			boolean[] representation = classifieur.lire_message(mail);
+		Classifieur classifieur = new Classifieur(dico_path, nbHam, nbSpam);
 
 
-			for (int i = 0; i < classifieur.getDico().size(); i++) {
-				System.out.print(representation[i] ? '1' : '0');
+		System.out.println("Apprentissage...");
+		classifieur.apprentissage(base_app_path);
+
+		//classifieur.prediction(base_test_path);
+
+
+
+		//Test final
+		if(!mail_test.equals("")){
+			System.out.println("Les numeros des mails ne correspondent pas aux noms des fichiers.");
+			int i, nH=0, nS=0;
+			//Cherche recursivement tous les fichiers du dossier
+			ArrayList<String> files = FiltreAntiSpam.getAllFiles(mail_test);
+			for(i=0; i<files.size(); i++){
+				boolean res = classifieur.predire(files.get(i));
+				if(res)nS++;
+				else nH++;
+
+				System.out.println("Mail numero "+i+" identifie comme un "+(res?"SPAM":"HAM"));
 			}
 			System.out.println();
-
+			System.out.println("Nous avons predit "+nH+" Ham(s) et "+nS+" Spam(s).");
 		}
 	}
 	

@@ -1,9 +1,9 @@
 
-rm */*.class 2> /dev/null;
+rm filtre/*.class 2> /dev/null;
 clear;clear;
 
-javac */*;
+javac filtre/*;
 
 java filtre/FiltreAntiSpam $@;
 
-rm */*.class;
+rm filtre/*.class 2> /dev/null;
