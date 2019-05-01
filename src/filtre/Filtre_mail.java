@@ -5,6 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.stream.Stream;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.*;
 
 public class Filtre_mail {
 
@@ -33,15 +36,21 @@ public class Filtre_mail {
 	
 	/**
 	 * Parcourt tout les mots d'un mail et verifie leur presence ou non par rapport au dictionnaire
-	 * @param message Nom du fichier contenant le message
+	 * @param path Nom du fichier contenant le message
 	 * @return Un vecteur de boolean indiquant la presence ou non d'un mot du dictionnaire
 	 */
-	protected boolean[] lire_message(String message) {
+	protected boolean[] lire_message(String path) {
 		boolean[] representation = new boolean[getDico().size()];
-		try (Stream<String> stream = Files.lines(Paths.get(message))) {
-			stream.forEach(e -> verifieMot(e.toUpperCase(), representation));
-		}
-		catch (IOException e) {
+
+		try {
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), "utf-8"));
+
+			String strCurrentLine;
+			while ((strCurrentLine = reader.readLine()) != null)
+				verifieMot(strCurrentLine.toUpperCase(), representation);
+
+		}catch ( Exception e ){
 			e.printStackTrace();
 		}
 		
@@ -53,7 +62,6 @@ public class Filtre_mail {
 	 * @param line Ligne de mot
 	 */
 	private void verifieMot(String line, boolean[] representation) {
-		//line = line.toUpperCase(); l'est deja depuis l'appel de la fonction
 		String[] splitted = line.split(" ");
 		ArrayList<String> dico = getDico();
 		for (String mot : splitted) {
@@ -62,7 +70,6 @@ public class Filtre_mail {
 				for (int i = 0; i < dico.size(); i++) {
 					if (mot.equals(dico.get(i))) {
 						representation[i] = true;
-						break;
 					}
 				}
 			}

@@ -26,8 +26,7 @@ public class FiltreAntiSpam {
 
 
 		for (int i = 0; i < listOfFiles.length; i++)
-			if (listOfFiles[i].isFile())
-				res.add(listOfFiles[i].getPath());
+			res.addAll(getAllFiles(listOfFiles[i].getPath()));
 
 		return res;
 	}
@@ -49,7 +48,7 @@ public class FiltreAntiSpam {
 			System.out.println(s);
 		}
 		System.out.println("Mot dans le dictionnaire : " + classifieur.getDico().size());
-		*/
+		//*/
 
 		ArrayList<String> mails = getAllFiles(args[1]);
 
@@ -58,11 +57,13 @@ public class FiltreAntiSpam {
 			System.out.println(mail);
 
 			boolean[] representation = classifieur.lire_message(mail);
+			
 
-			for(int i=0; i < classifieur.getDico().size(); i++){
+			for (int i = 0; i < classifieur.getDico().size(); i++) {
 				System.out.print(representation[i] ? '1' : '0');
 			}
 			System.out.println();
+
 		}
 	}
 	
