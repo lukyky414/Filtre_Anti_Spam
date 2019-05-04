@@ -283,7 +283,8 @@ public class Classifieur {
 	 */
 	private String filter(String word){
 		//Permet d'enlever toute ponctuation ou charactere autre que des lettres.
-		word = word.replaceAll("[0-9]|\\.|,|;|:|@|<|>|\\(|\\)|\\?|'|\"|\\-|\\+|/|\\[|\\]|#|=|`|\\*|!|\\$|~|\\t|\\n|\\r|\\\\|&|\\{|\\}|_|%|\\||\\^","");
+		//word = word.replaceAll("[0-9]|\\.|,|;|:|@|<|>|\\(|\\)|\\?|'|\"|\\-|\\+|/|\\[|\\]|#|=|`|\\*|!|\\$|~|\\t|\\n|\\r|\\\\|&|\\{|\\}|_|%|\\||\\^","");
+		word = word.replaceAll("((?![a-zA-Z]).)","");
 
 		if(word.length() <= 3)
 			return null;
