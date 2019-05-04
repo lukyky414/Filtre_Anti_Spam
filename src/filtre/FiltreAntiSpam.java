@@ -33,20 +33,32 @@ public class FiltreAntiSpam {
 
 	private static void printHelp(){
 		System.out.println("Programme lance sans ou avec des mauvais parametres.");
+		System.out.println("");
 		System.out.println("  -h / --help : Afficher ce message.");
-		System.out.println("  -d : Le chemin du dictionnaire. (obligatoire)");
+		System.out.println("  -d : Le chemin du dictionnaire.");
 		System.out.println("  -ba : Le chemin de la Base d'Apprentissage.");
 		System.out.println("  -bt : Le chemin de la Base de Test.");
-		System.out.println("  -ns : Nombre de Spam a charger de la base d'apprentissage.");
-		System.out.println("  -nh : Nombre de Ham a charger de la base d'apprentissage.");
-		System.out.println("  -t : Chemin vers un dossier ou un fichier test");
+		System.out.println("  -ns : Nombre de Spam a charger de la base d'apprentissage. (0=ALL)");
+		System.out.println("  -nh : Nombre de Ham a charger de la base d'apprentissage.  (0=ALL)");
+		System.out.println("  -t : Chemin vers un dossier ou un fichier test.");
+		System.out.println("");
+		System.out.println("Les chemins doivent etre de la forme:");
+		System.out.println("  /path/to/folder/");
+		System.out.println("");
+		System.out.println("Valeurs par defaut:");
+		System.out.println(" -d : ../dictionnaire1000en.txt");
+		System.out.println(" -ba: ../baseapp/");
+		System.out.println(" -bt: ../basetest/");
+		System.out.println(" -ns: 0");
+		System.out.println(" -nh: 0");
+		System.out.println(" -t : [none]");
 		System.exit(0);
 	}
 	
 	public static void main (String args[]) {
 
 		String dico_path = "../dictionnaire1000en.txt", base_app_path = "../baseapp/", base_test_path = "../basetest/", mail_test = "";
-		int nbSpam = 200, nbHam = 200;
+		int nbSpam = 0, nbHam = 0;
 
 		{
 			int i = 0;
@@ -110,7 +122,8 @@ public class FiltreAntiSpam {
 		System.out.println("Apprentissage...");
 		classifieur.apprentissage(base_app_path);
 
-		//classifieur.prediction(base_test_path);
+		System.out.println("Test...");
+		classifieur.prediction(base_test_path);
 
 
 

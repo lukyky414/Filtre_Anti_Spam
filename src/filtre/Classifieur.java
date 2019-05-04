@@ -39,13 +39,41 @@ public class Classifieur {
 		return dico;
 	}
 
+	private boolean directory_exist(String path){
+		File folder = new File(path);
+		ArrayList<String> res = new ArrayList<String>();
+		boolean h=false, s=false;
+
+		if(!folder.isDirectory()) {
+			return false;
+		}
+
+		File[] listOfFiles = folder.listFiles();
+
+		for (int i = 0; i < listOfFiles.length; i++) {
+			if (listOfFiles[i].isDirectory()) {
+				if(listOfFiles[i].getName().equals("ham"))
+					h=true;
+				if(listOfFiles[i].getName().equals("spam"))
+					s=true;
+			}
+		}
+
+		return h&&s;
+	}
+
 	/**
 	 * Lance l'apprentissage
 	 * @param base_app_path - Chemin du dossier d'apprentissage. Doit contenir un dossier HAM et un dossier SPAM
 	 */
 	public void apprentissage(String base_app_path){
+		if(!directory_exist(base_app_path)){
+			System.out.println("La base d'apprentissage ne contient pas de dossier \"/ham/\" ou \"/spam/\".");
+			return;
+		}
+
 		int i;
-		// TODO tester l'existence des dossiers
+
 		int[] motHam = new int[size];
 		apprendre(base_app_path+"ham/", nbHam, motHam);
 
@@ -76,6 +104,9 @@ public class Classifieur {
 	private void apprendre(String chemin, int nb, int[] tab){
 		ArrayList<String> files = FiltreAntiSpam.getAllFiles(chemin);
 
+		if(nb == 0)
+			nb = files.size();
+
 		if(files.size() < nb){
 			System.out.println("Pas assez de fichiers d'apprentissage dans "+chemin);
 			System.exit(1);
@@ -96,7 +127,10 @@ public class Classifieur {
 	 * @param base_test_path - Chemin du dossier de test. Doit contenir un dossier HAM et un dossier SPAM
 	 */
 	public void prediction(String base_test_path){
-		//TODO verifier presence de ham & spam
+		if(!directory_exist(base_test_path)){
+			System.out.println("La base de test ne contient pas de dossier \"/ham/\" ou \"/spam/\".");
+			return;
+		}
 		int i;
 		int errS=0, errH=0;
 		int nbH=0, nbS=0;
@@ -142,7 +176,7 @@ public class Classifieur {
 
 		//Decomenter pour afficher
 		//Afficher les erreurs du classifieur lors du test
-		/*
+
 		System.out.println("\n\n");
 		int tmp;
 		tmp = (int)((double) (errH*100) / (double)nbH);
