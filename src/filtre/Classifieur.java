@@ -265,6 +265,7 @@ public class Classifieur {
 		ArrayList<String> dico = getDico();
 		for (String mot : splitted) {
 			mot = filter(mot);
+
 			if(mot != null) {
 				for (int i = 0; i < dico.size(); i++) {
 					if (mot.equals(dico.get(i))) {
@@ -281,9 +282,12 @@ public class Classifieur {
 	 * @return null si word.size() < 3, word en UpperCase sinon.
 	 */
 	private String filter(String word){
+		//Permet d'enlever toute ponctuation ou charactere autre que des lettres.
+		word = word.replaceAll("[0-9]|\\.|,|;|:|@|<|>|\\(|\\)|\\?|'|\"|\\-|\\+|/|\\[|\\]|#|=|`|\\*|!|\\$|~|\\t|\\n|\\r|\\\\|&|\\{|\\}|_|%|\\||\\^","");
+
 		if(word.length() <= 3)
 			return null;
-		//TODO plus de filtrations.
+
 		return word.toUpperCase();
 	}
 	
