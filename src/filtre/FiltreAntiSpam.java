@@ -9,6 +9,13 @@ import java.util.stream.Stream;
 
 public class FiltreAntiSpam {
 
+	public static boolean PROB_DICO = false;
+	public static boolean PRED_HAM = false;
+	public static boolean PRED_SPAM = false;
+	public static boolean TEST_ERR = false;
+	public static boolean PROB_PRED = false;
+
+
 	public FiltreAntiSpam() {
 		
 	}
@@ -32,8 +39,7 @@ public class FiltreAntiSpam {
 	}
 
 	private static void printHelp(){
-		System.out.println("Programme lance sans ou avec des mauvais parametres.");
-		System.out.println("");
+		System.out.println("Programme lance sans ou avec des mauvais parametres:");
 		System.out.println("  -h / --help : Afficher ce message.");
 		System.out.println("  -d : Le chemin du dictionnaire.");
 		System.out.println("  -ba : Le chemin de la Base d'Apprentissage.");
@@ -44,6 +50,14 @@ public class FiltreAntiSpam {
 		System.out.println("");
 		System.out.println("Les chemins doivent etre de la forme:");
 		System.out.println("  /path/to/folder/");
+		System.out.println("");
+		System.out.println("Activer certains affichages:");
+		System.out.println("  -at : Afficher le resultat du classifieur.");
+		System.out.println("  -ad : Affichage de la probabilite d'apparition d'un mot du dico dans les ham ou les spam.");
+		System.out.println("  -ap : Affichage des probabilites lors de la prediction.");
+		System.out.println("  -aph : Affichage de la verification des predictions des ham.");
+		System.out.println("  -aps : Affichage de la verification des predictions des spam.");
+		System.out.println("(conseil: -at -aph -aps)");
 		System.out.println("");
 		System.out.println("Valeurs par defaut:");
 		System.out.println(" -d : ../dictionnaire1000en.txt");
@@ -64,6 +78,26 @@ public class FiltreAntiSpam {
 			int i = 0;
 			while (i < args.length) {
 				switch (args[i].toLowerCase()) {
+					case "-at":
+						TEST_ERR=true;
+						break;
+
+					case "-ad":
+						PROB_DICO=true;
+						break;
+
+					case "-ap":
+						PROB_PRED=true;
+						break;
+
+					case "-aph":
+						PRED_HAM=true;
+						break;
+
+					case "-aps":
+						PRED_SPAM=true;
+						break;
+
 					case "-d":
 						i++;
 						if (i >= args.length)
@@ -116,13 +150,15 @@ public class FiltreAntiSpam {
 			}
 		}
 
+		long startTime = System.currentTimeMillis();
+
 		Classifieur classifieur = new Classifieur(dico_path, nbHam, nbSpam);
 
 
 		System.out.println("Apprentissage...");
 		classifieur.apprentissage(base_app_path);
 
-		System.out.println("Test...");
+		System.out.println("\n\nTest...");
 		classifieur.prediction(base_test_path);
 
 
@@ -143,6 +179,11 @@ public class FiltreAntiSpam {
 			System.out.println();
 			System.out.println("Nous avons predit "+nH+" Ham(s) et "+nS+" Spam(s).");
 		}
+
+		long stopTime = System.currentTimeMillis();
+
+		double elapsedTime = (stopTime - startTime)/1000.0;
+		System.out.println("\n\nTemps d'execution: " + elapsedTime + "s.");
 	}
 	
 	

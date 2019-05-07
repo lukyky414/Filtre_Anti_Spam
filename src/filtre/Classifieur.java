@@ -30,9 +30,6 @@ public class Classifieur {
 
 		this.nbHam = nbHam;
 		this.nbSpam = nbSpam;
-
-		pHam = (double) nbHam / (double) (nbHam+nbSpam);
-		pSpam = (double) nbSpam / (double) (nbHam+nbSpam);
 	}
 	
 	protected ArrayList<String> getDico() {
@@ -75,37 +72,43 @@ public class Classifieur {
 		int i;
 
 		int[] motHam = new int[size];
-		apprendre(base_app_path+"ham/", nbHam, motHam);
+		nbHam = apprendre(base_app_path+"ham/", nbHam, motHam);
 
 		for(i=0; i<size; i++)
 			probaMotHam[i] = (double) (motHam[i] + epsilon ) / (double)(nbHam + 2 * epsilon);
 
 		int[] motSpam = new int[size];
-		apprendre(base_app_path+"spam/", nbSpam, motSpam);
+		nbSpam = apprendre(base_app_path+"spam/", nbSpam, motSpam);
 
 		for(i=0; i<size; i++)
 			probaMotSpam[i] = (double)( motSpam[i] + epsilon ) / (double)(nbSpam + 2 * epsilon);
 
-		//Decomenter pour afficher
-		//Voir la probabilite d'apparition d'un mot du dico dans les ham ou les spam
-		/*
-		int tmp;
-		for (i = 0; i < size; i++) {
-			System.out.print(dico.get(i) + "\t");
-			if (dico.get(i).length() < 8) System.out.print("\t");
 
-			tmp = (int) (probaMotHam[i] * 100);
-			System.out.print("\t- h:" + tmp + "%");
-			tmp = (int) (probaMotSpam[i] * 100);
-			System.out.println("\t  s:" + tmp + "%");
-		}//*/
+
+		pHam = (double) nbHam / (double) (nbHam+nbSpam);
+		pSpam = (double) nbSpam / (double) (nbHam+nbSpam);
+
+		//Affichage de la probabilite d'apparition d'un mot du dico dans les ham ou les spam
+		if(FiltreAntiSpam.PROB_DICO) {
+			int tmp;
+			for (i = 0; i < size; i++) {
+				System.out.print(dico.get(i) + "\t");
+				if (dico.get(i).length() < 8) System.out.print("\t");
+
+				tmp = (int) (probaMotHam[i] * 100);
+				System.out.print("\t- h:" + tmp + "%");
+				tmp = (int) (probaMotSpam[i] * 100);
+				System.out.println("\t  s:" + tmp + "%");
+			}
+		}
 	}
 
-	private void apprendre(String chemin, int nb, int[] tab){
+	private int apprendre(String chemin, int nb, int[] tab){
 		ArrayList<String> files = FiltreAntiSpam.getAllFiles(chemin);
 
+
 		if(nb == 0)
-			nb = files.size();
+			nb = FiltreAntiSpam.getAllFiles(chemin).size();
 
 		if(files.size() < nb){
 			System.out.println("Pas assez de fichiers d'apprentissage dans "+chemin);
@@ -120,71 +123,73 @@ public class Classifieur {
 				if(representation[j])
 					tab[j]++;
 		}
+
+		return nb;
 	}
 
 	/**
 	 * Lance la prediction pour une base de test
 	 * @param base_test_path - Chemin du dossier de test. Doit contenir un dossier HAM et un dossier SPAM
 	 */
-	public void prediction(String base_test_path){
-		if(!directory_exist(base_test_path)){
+	public void prediction(String base_test_path) {
+		if (!directory_exist(base_test_path)) {
 			System.out.println("La base de test ne contient pas de dossier \"/ham/\" ou \"/spam/\".");
 			return;
 		}
 		int i;
-		int errS=0, errH=0;
-		int nbH=0, nbS=0;
+		int errS = 0, errH = 0;
+		int nbH = 0, nbS = 0;
 
 
-		ArrayList<String> files = FiltreAntiSpam.getAllFiles(base_test_path+"ham/");
-		for(i=0; i<files.size(); i++){
+		ArrayList<String> files = FiltreAntiSpam.getAllFiles(base_test_path + "ham/");
+		for (i = 0; i < files.size(); i++) {
 			nbH++;
 			boolean res;
 			res = predire(files.get(i));
 
-			if(res)errH++;
+			if (res) errH++;
 
-			//Decomenter pour afficher
-			//Affichage de la verification des predictions
-			/*
-			System.out.print("HAM numero "+i+" identifie comme un "+(res?"SPAM":"HAM"));
-			if(res)
-				System.out.println(" ***erreur***");
-			else
-				System.out.println();//*/
+			//Affichage de la verification des predictions des ham
+			if (FiltreAntiSpam.PRED_HAM) {
+				System.out.print("HAM numero " + i + " identifie comme un " + (res ? "SPAM" : "HAM"));
+				if (res)
+					System.out.println(" ***erreur***");
+				else
+					System.out.println();
+			}
 		}
 
 
-		files = FiltreAntiSpam.getAllFiles(base_test_path+"spam/");
-		for(i=0; i<files.size(); i++){
+		files = FiltreAntiSpam.getAllFiles(base_test_path + "spam/");
+		for (i = 0; i < files.size(); i++) {
 			nbS++;
 			boolean res;
 			res = predire(files.get(i));
 
-			if(!res)errS++;
+			if (!res) errS++;
 
 
-			//Decomenter pour afficher
-			//Affichage de la verification des predictions
-			/*
-			System.out.print("SPAM numero "+i+" identifie comme un "+(res?"SPAM":"HAM"));
-			if(!res)
-				System.out.println("    ***erreur***");
-			else
-				System.out.println();//*/
+			//Affichage de la verification des predictions des spam
+			if (FiltreAntiSpam.PRED_SPAM) {
+				System.out.print("SPAM numero " + i + " identifie comme un " + (res ? "SPAM" : "HAM"));
+				if (!res)
+					System.out.println("    ***erreur***");
+				else
+					System.out.println();
+			}
 		}
 
-		//Decomenter pour afficher
 		//Afficher les erreurs du classifieur lors du test
-
-		System.out.println("\n\n");
-		int tmp;
-		tmp = (int)((double) (errH*100) / (double)nbH);
-		System.out.println("Erreur de test sur les " + nbH + " HAM : " + tmp + "%");
-		tmp = (int)((double) (errS*100) / (double)nbS);
-		System.out.println("Erreur de test sur les " + nbS + " SPAM : " + tmp + "%");
-		tmp = (int)((double)((errH+errS)*100)/(double)(nbH+nbS));
-		System.out.println("Erreur de test globale sur " + (nbH+nbS) + " mails : "+ tmp + "%");//*/
+		if(FiltreAntiSpam.TEST_ERR) {
+			System.out.println("\n\n");
+			int tmp;
+			tmp = (int) ((double) (errH * 100) / (double) nbH);
+			System.out.println("Erreur de test sur les " + nbH + " HAM : " + tmp + "%");
+			tmp = (int) ((double) (errS * 100) / (double) nbS);
+			System.out.println("Erreur de test sur les " + nbS + " SPAM : " + tmp + "%");
+			tmp = (int) ((double) ((errH + errS) * 100) / (double) (nbH + nbS));
+			System.out.println("Erreur de test globale sur " + (nbH + nbS) + " mails : " + tmp + "%");
+		}
 
 	}
 
@@ -210,12 +215,12 @@ public class Classifieur {
 		}
 
 
-		//Decomenter pour afficher
 		//Affichage des probabilites lors de la prediction.
-		/*
-		System.out.print("P(Y=SPAM | X=x) = " + probS);
-		System.out.print("\tP(Y=HAM | X=x) = " + probH);
-		System.out.println("\t=> identifie comme un " + (probS > probH?"SPAM" : "HAM"));//*/
+		if(FiltreAntiSpam.PROB_PRED) {
+			System.out.print("P(Y=SPAM | X=x) = " + probS);
+			System.out.print("\tP(Y=HAM | X=x) = " + probH);
+			System.out.println("\t=> identifie comme un " + (probS > probH ? "SPAM" : "HAM"));
+		}
 
 		return probS > probH;
 	}
@@ -284,6 +289,9 @@ public class Classifieur {
 	private String filter(String word){
 		//Permet d'enlever toute ponctuation ou charactere autre que des lettres.
 		//word = word.replaceAll("[0-9]|\\.|,|;|:|@|<|>|\\(|\\)|\\?|'|\"|\\-|\\+|/|\\[|\\]|#|=|`|\\*|!|\\$|~|\\t|\\n|\\r|\\\\|&|\\{|\\}|_|%|\\||\\^","");
+
+		//[a-zA-Z] -> toutes les lettres
+		//! [a-zA-Z] -> tout sauf les lettres
 		word = word.replaceAll("((?![a-zA-Z]).)","");
 
 		if(word.length() <= 3)
